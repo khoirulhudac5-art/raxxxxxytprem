@@ -37,6 +37,7 @@ async function run() {
  const changed=structuredClone(remote);changed[0].plans[0].price++;
  assert.equal(catalog.compareCatalogs(local,changed).sameData,false);
  assert.equal(JSON.stringify({local,remote}),before);
+ const stocked=structuredClone(remote);stocked[0].plans[0].available=false;assert.equal(catalog.compareCatalogs(local,stocked).sameData,false);
  const reads=[];
  const stored=catalog.readStoredCatalog({getItem:key=>{reads.push(key);return JSON.stringify(custom);}},productModel.STORAGE_KEY);
  assert.deepEqual(plain(stored),custom);assert.deepEqual(reads,[productModel.STORAGE_KEY]);
@@ -53,7 +54,7 @@ async function run() {
  function mount(enabled,promise) {
   const states=[];let calls=0,cleanup;
   const hook=load('src/lib/supabase/use-catalog-preview.ts',{
-   react:{useState:initial=>[initial,value=>states.push(value)],useEffect:effect=>{cleanup=effect();}},
+   react:{useState:initial=>[initial,value=>states.push(typeof value==='function'?value(initial):value)],useEffect:effect=>{cleanup=effect();}},
    './client':{createClient:()=>{calls++;return {};}},
    './products':{fetchSupabaseProducts:()=>promise},'./catalog':catalog,'./product-source':shared,'./product-refresh':refresh,
   });

@@ -39,9 +39,10 @@ export function validateCrudRequest(value:unknown){
  if(image_url&&!validImageUrl(image_url))throw new CrudError(400,'URL gambar tidak valid.');
  if(!Array.isArray(p.plans)||!p.plans.length||p.plans.length>50)throw new CrudError(400,'Paket tidak valid.');
  const plans=p.plans.map(item=>{const plan=object(item);
+  if((v.operation==='update'&&typeof plan.available!=='boolean')||(plan.available!==undefined&&typeof plan.available!=='boolean'))throw new CrudError(400,'Status stok setiap paket harus boolean. Muat ulang Admin sebelum menyimpan.');
   if(typeof plan.duration!=='string'||!plan.duration.trim()||plan.duration.length>40||
    typeof plan.price!=='number'||!Number.isSafeInteger(plan.price)||plan.price<0||plan.price>999999999999)throw new CrudError(400,'Durasi/harga tidak valid.');
-  return {duration:plan.duration.trim(),price:plan.price};
+  return {duration:plan.duration.trim(),price:plan.price,available:plan.available===undefined?true:plan.available};
  });
  return {operation,id:v.id,revision:v.revision as number|undefined,data:{name,description,category,icon,color,badge,image_url,plans}};
 }

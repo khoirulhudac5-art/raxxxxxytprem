@@ -16,6 +16,9 @@ async function run(){
  assert.deepEqual(backup.products.map(({createdAt,updatedAt,...p})=>p),original.products);
  assert.deepEqual(backup.productOrder,original.products.map(p=>p.id));assert.deepEqual(backup.whatsapp,original.whatsapp);
  assert.ok(backup.products.every(p=>p.createdAt===date&&p.updatedAt===date));assert.equal(backup.storeSettings.updatedAt,date);
+ const stockRows=structuredClone(rows);stockRows[0].plans[0].available=false;
+ const stockBackup=JSON.parse((await exportSupabaseBackup(client(stockRows),new Date(date))).json);
+ assert.equal(stockBackup.products.find(p=>p.id===stockRows[0].id).plans[0].available,false);
  assert.ok(!output.json.includes('must-not-export'));assert.ok(backup.warnings.length);
  await assert.rejects(()=>exportSupabaseBackup(client([])));await assert.rejects(()=>exportSupabaseBackup(client(rows,[])));
  await assert.rejects(()=>exportSupabaseBackup(client(rows,[setting,setting])));await assert.rejects(()=>exportSupabaseBackup(client(rows,[setting],true)));

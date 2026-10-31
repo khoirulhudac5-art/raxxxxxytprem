@@ -23,11 +23,11 @@ export function mapSupabaseProducts(value: unknown): Product[] {
   ids.add(id);
   if (!Array.isArray(row.plans) || !row.plans.length) throw new Error(`Paket pada baris ${index + 1} kosong/tidak valid.`);
   const plans = row.plans.map(plan => {
-   if (!isObject(plan) || typeof plan.duration !== 'string' || !plan.duration.trim() ||
+   if (!isObject(plan) || (plan.available!==undefined&&typeof plan.available!=='boolean') || typeof plan.duration !== 'string' || !plan.duration.trim() ||
     typeof plan.price !== 'number' || !Number.isSafeInteger(plan.price) || plan.price < 0) {
     throw new Error(`Durasi/harga pada baris ${index + 1} tidak valid.`);
    }
-   return {duration: plan.duration, price: plan.price};
+   return {duration: plan.duration, price: plan.price, ...(plan.available===undefined?{}:{available:plan.available as boolean})};
   });
   return {id, name, description:text('description'), category:text('category'),
    icon:text('icon'), color:text('color'), badge:text('badge'), imageUrl:text('image_url'), plans};

@@ -23,7 +23,7 @@ export function compareCatalogs(local: Product[], remote: Product[]) {
   const other=remoteById.get(p.id);
   return other && (fields.some(key=>p[key]!==other[key]) || (p.imageUrl ?? '')!==(other.imageUrl ?? '') ||
    p.plans.length!==other.plans.length || p.plans.some((plan,index)=>
-    plan.duration!==other.plans[index].duration || plan.price!==other.plans[index].price));
+    plan.duration!==other.plans[index].duration || plan.price!==other.plans[index].price || (plan.available??true)!==(other.plans[index].available??true)));
  }).map(p=>p.id);
  const sameOrder = local.length===remote.length && local.every((p,index)=>p.id===remote[index].id);
  return {sameOrder, sameData:!missingIds.length && !addedIds.length && !changedIds.length,

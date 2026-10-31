@@ -1,5 +1,7 @@
 export const categories = ['AI Tools', 'Desain & Video', 'Streaming', 'Produktivitas'] as const;
-export type Product = { id: string; name: string; description: string; category: string; icon: string; color: string; badge: string; imageUrl?: string; plans: { duration: string; price: number }[] };
+export type Product = { id: string; name: string; description: string; category: string; icon: string; color: string; badge: string; imageUrl?: string; plans: { duration: string; price: number; available?: boolean }[] };
+export function isPlanAvailable(plan:Product['plans'][number]):boolean{return plan.available===undefined||plan.available===true;}
+export function availablePlanIndex(plans:Product['plans'],preferred=0):number{return plans[preferred]&&isPlanAvailable(plans[preferred])?preferred:plans.findIndex(isPlanAvailable);}
 export function validImageUrl(value: string): boolean {
  try {
   const url = new URL(value);
@@ -18,5 +20,5 @@ export const initialProducts: Product[] = [
 export const rupiah = (value: number) => new Intl.NumberFormat('id-ID', {style:'currency',currency:'IDR',maximumFractionDigits:0}).format(value);
 export const STORAGE_KEY = 'rakyat-premium-products-v1';
 export function validProducts(value: unknown): value is Product[] {
- return Array.isArray(value) && value.every(p => p && (p.imageUrl === undefined || typeof p.imageUrl === 'string') && ['id','name','description','category','icon','color','badge'].every(k => typeof p[k] === 'string') && p.plans?.length > 0 && Array.isArray(p.plans) && p.plans.every((q: {duration:unknown;price:unknown}) => typeof q.duration === 'string' && q.duration.trim() && typeof q.price === 'number' && Number.isFinite(q.price) && q.price >= 0)) && new Set(value.map(p=>p.id)).size === value.length;
+ return Array.isArray(value) && value.every(p => p && (p.imageUrl === undefined || typeof p.imageUrl === 'string') && ['id','name','description','category','icon','color','badge'].every(k => typeof p[k] === 'string') && p.plans?.length > 0 && Array.isArray(p.plans) && p.plans.every((q: {duration:unknown;price:unknown;available?:unknown}) => (q.available===undefined||typeof q.available==='boolean') && typeof q.duration === 'string' && q.duration.trim() && typeof q.price === 'number' && Number.isFinite(q.price) && q.price >= 0)) && new Set(value.map(p=>p.id)).size === value.length;
 }

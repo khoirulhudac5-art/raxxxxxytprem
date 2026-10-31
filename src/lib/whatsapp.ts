@@ -15,7 +15,7 @@ export function validWhatsAppSettings(value: unknown): value is WhatsAppSettings
   typeof settings.template === 'string' && !!settings.template.trim() && settings.template.length <= 4000;
 }
 export function whatsAppLink(settings: WhatsAppSettings, product: Product, plan: Product['plans'][number]): string {
- if (!validWhatsAppSettings(settings)) return '';
+ if (!plan || (plan.available!==undefined&&plan.available!==true) || !validWhatsAppSettings(settings)) return '';
  const variables = {produk:product.name, durasi:plan.duration, harga:rupiah(plan.price)};
  const message = settings.template.replace(/\{(produk|durasi|harga)\}/g, (_, key: keyof typeof variables) => variables[key]);
  return `https://wa.me/${settings.number}?text=${encodeURIComponent(message)}`;

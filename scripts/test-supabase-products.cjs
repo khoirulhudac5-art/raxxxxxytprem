@@ -34,6 +34,9 @@ async function run() {
   [{...rows[0],plans:[{duration:'1 bulan',price:1.5}]}]]) {
   assert.throws(()=>mapSupabaseProducts(invalid));
  }
+ const stockRows=structuredClone(rows);stockRows[0].plans[0].available=false;
+ assert.equal(mapSupabaseProducts(stockRows)[0].plans[0].available,false);
+ for(const available of ['false',0,null])assert.throws(()=>mapSupabaseProducts([{...rows[0],plans:[{duration:'x',price:1,available}]}]));
  const calls=[];
  const mock = {schema(name){calls.push(['schema',name]);return this;},from(name){calls.push(['from',name]);return this;},
   select(columns){calls.push(['select',columns]);return this;},async order(column,options){calls.push(['order',column,options.ascending]);return {data:rows,error:null};}};

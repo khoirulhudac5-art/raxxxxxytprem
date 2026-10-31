@@ -9,7 +9,8 @@ function nodes(value){if(Array.isArray(value))return value.flatMap(nodes);if(!va
 function workspace(preview,status='ready',forcedDraft=null,forcedDelete=null,crud=false,mutationOK=true){
  const effects={writes:0,drafts:0,deletes:0,retries:0,reader:null,mutations:[]};let stateIndex=0;
  const Component=load('src/components/admin-workspace.tsx',{
-  react:{...React,useCallback:fn=>fn,useState:initial=>{const index=stateIndex++;return [[forcedDraft,forcedDelete,''][index]??initial,()=>{if(index===0)effects.drafts++;if(index===1)effects.deletes++;}];}},
+  react:{...React,useCallback:fn=>fn,useState:initial=>{const index=stateIndex++;return [[forcedDraft,forcedDelete,''][index]??initial,next=>{if(index===0){effects.drafts++;effects.draftValue=typeof next==='function'?next(forcedDraft):next;}if(index===1)effects.deletes++;}];}},
+  '@/components/product-image-upload':{ProductImageUpload:()=>null},'@/components/shared-whatsapp-settings':{SharedWhatsAppSettings:()=>null},
   '@/components/dialog-keyboard':{DialogKeyboard:()=>null},'@/components/header':{Header:()=>null},
   '@/components/product-image':{ProductImage:()=>null},'@/components/whatsapp-settings':{WhatsAppSettingsPanel:()=>null},'@/components/export-backup':{ExportBackup:()=>null},
   '@/lib/products':model,'@/lib/use-products':{useProducts:()=>({products,ready:true,error:'',save:()=>{effects.writes++;return true;}})},
@@ -42,7 +43,19 @@ async function run(){
  const remoteDraft={...products[0],revision:3,sortOrder:10};
  const remoteEdit=workspace(false,'ready',remoteDraft,null,true);
  await nodes(remoteEdit.tree).find(n=>n.type==='form'&&n.props.onSubmit).props.onSubmit({preventDefault(){}});
- assert.equal(remoteEdit.effects.writes,0);assert.equal(remoteEdit.effects.mutations[0].operation,'update');assert.equal(remoteEdit.effects.mutations[0].revision,3);
+ assert.equal(remoteEdit.effects.writes,0);assert.equal(remoteEdit.effects.mutations[0].operation,'update');assert.equal(remoteEdit.effects.mutations[0].revision,3);assert.ok(remoteEdit.effects.mutations[0].product.plans.every(p=>p.available===true));
+ const stockToggle=workspace(false,'ready',remoteDraft,null,true);
+ const stockSelect=nodes(stockToggle.tree).find(n=>n.type==='select'&&n.props['aria-label']==='Status stok paket 1');
+ assert.equal(stockSelect.props.value,'available');stockSelect.props.onChange({target:{value:'empty'}});
+ assert.equal(stockToggle.effects.draftValue.plans[0].available,false);
+ const toggledEditor=workspace(false,'ready',stockToggle.effects.draftValue,null,true);
+ await nodes(toggledEditor.tree).find(n=>n.type==='form'&&n.props.onSubmit).props.onSubmit({preventDefault(){}});
+ assert.equal(toggledEditor.effects.mutations[0].product.plans[0].available,false);
+ const stockDraft={...remoteDraft,plans:remoteDraft.plans.map((p,i)=>({...p,available:i!==0}))};
+ const stockEditor=workspace(false,'ready',stockDraft,null,true);
+ await nodes(stockEditor.tree).find(n=>n.type==='form'&&n.props.onSubmit).props.onSubmit({preventDefault(){}});
+ assert.equal(stockEditor.effects.mutations[0].product.plans[0].available,false);
+ assert.equal(nodes(stockEditor.tree).filter(n=>n.type==='select'&&n.props['aria-label']?.startsWith('Status stok')).length,2);
  const failedEdit=workspace(false,'ready',remoteDraft,null,true,false);
  await nodes(failedEdit.tree).find(n=>n.type==='form'&&n.props.onSubmit).props.onSubmit({preventDefault(){}});
  assert.equal(failedEdit.effects.drafts,0,'Failed mutation must preserve draft');assert.equal(failedEdit.effects.writes,0);

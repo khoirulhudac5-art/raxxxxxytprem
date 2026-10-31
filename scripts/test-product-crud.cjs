@@ -17,18 +17,30 @@ async function run(){
  flag.ctx.process.env.NODE_ENV='development';assert.equal(flag.module.productCrudEnabled(),true);
  flag.ctx.process.env.SUPABASE_PRODUCT_CRUD_APPROVED_URL='other';assert.equal(flag.module.productCrudEnabled(),false);
  const list=await crud.executeProductCrud(client(),{operation:'list'});assert.equal(list.products.length,7);assert.equal(list.products.reduce((n,p)=>n+p.plans.length,0),14);
- const edit={operation:'update',id:'chatgpt',revision:1,product:backup.products[0]};
+ const edit={operation:'update',id:'chatgpt',revision:1,product:{...backup.products[0],plans:backup.products[0].plans.map(p=>({...p,available:true}))}};
  assert.throws(()=>crud.validateCrudRequest({...edit,revision:0}));
  assert.throws(()=>crud.validateCrudRequest({...edit,product:{...edit.product,plans:[{duration:'x',price:1.2}]}}));
  await assert.rejects(()=>crud.executeProductCrud(client(true),edit),e=>e.status===503);assert.equal(writes,0);
+ assert.throws(()=>crud.validateCrudRequest({...edit,product:backup.products[0]}),e=>e.status===400);
+ assert.throws(()=>crud.validateCrudRequest({...edit,product:{...edit.product,plans:[{duration:'x',price:1,available:'false'}]}}),e=>e.status===400);
  const race=await Promise.allSettled([crud.executeProductCrud(client(),edit),crud.executeProductCrud(client(),edit)]);
  assert.equal(race.filter(r=>r.status==='fulfilled').length,1);assert.equal(race.find(r=>r.status==='rejected').reason.status,409);
  assert.equal(rows.find(r=>r.id==='chatgpt').revision,2);
  await assert.rejects(()=>crud.executeProductCrud(client(),{operation:'delete',id:'chatgpt',revision:1}),e=>e.status===409);
  const id='11111111-1111-4111-8111-111111111111';await crud.executeProductCrud(client(),{operation:'create',id,product:backup.products[0]});
- assert.equal(rows.at(-1).sort_order,80);const n=rows.length;
+ assert.equal(rows.at(-1).sort_order,80);assert.ok(rows.at(-1).plans.every(p=>p.available===true));const n=rows.length;
  await assert.rejects(()=>crud.executeProductCrud(client(),{operation:'create',id,product:backup.products[0]}),e=>e.status===409);assert.equal(rows.length,n);
  await crud.executeProductCrud(client(),{operation:'delete',id,revision:1});assert.equal(rows.length,7);
+ // Persist stock through the same Admin writer, then re-read like a fresh session.
+ const stockEdit={...edit,revision:2,product:{...edit.product,plans:edit.product.plans.map((p,i)=>({...p,available:i!==0}))}};
+ await crud.executeProductCrud(client(),stockEdit);
+ const refreshed=await crud.executeProductCrud(client(),{operation:'list'});
+ const stocked=refreshed.products.find(p=>p.id==='chatgpt');assert.equal(stocked.plans[0].available,false);assert.equal(stocked.plans[1].available,true);
+ await assert.rejects(()=>crud.executeProductCrud(client(),{...edit,revision:3,product:backup.products[0]}),e=>e.status===400);
+ assert.equal(rows.find(p=>p.id==='chatgpt').plans[0].available,false);
+ await crud.executeProductCrud(client(),{operation:'update',id:'chatgpt',revision:3,product:stocked});
+ assert.equal((await crud.executeProductCrud(client(),{operation:'list'})).products.find(p=>p.id==='chatgpt').plans[0].available,false);
+ const preserved=stocked.plans.map(({available,...p})=>p);assert.deepEqual(JSON.parse(JSON.stringify(preserved)),backup.products[0].plans);
  const {NextRequest}=require('next/server');let dbCalls=0;
  function route(enabled,access){return load('src/app/admin/api/products/route.ts',{
   '@/lib/supabase/crud-flag':{productCrudEnabled:()=>enabled},'@/lib/supabase/server':{createClient:async()=>{dbCalls++;return client();}},
