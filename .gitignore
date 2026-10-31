@@ -1,0 +1,22 @@
+node_modules/
+.next/
+.tools/
+out/
+*.tsbuildinfo
+.env*
+!.env.example
+
+# Local deployment state and credentials
+.vercel/
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+# Database backups and environment-specific inspection reports
+/*backup*.json
+scripts/*inspection.json
+scripts/*report.json
+scripts/*latest.json
+scripts/supabase-schema.json

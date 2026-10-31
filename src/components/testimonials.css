@@ -1,0 +1,46 @@
+﻿.tm-manager>p{color:#a0aec4;margin:14px 0}.tm-upload{margin:24px 0;padding:20px;border:1px solid #ffffff20;border-radius:14px;background:#142033;display:flex;flex-direction:column;gap:16px;align-items:flex-start}.tm-upload label{display:flex;flex-direction:column;gap:12px}.tm-upload input{max-width:100%}.tm-preview{width:100%;max-width:320px;height:240px;object-fit:contain}.tm-list{display:grid;gap:16px;margin-top:24px}.tm-row{display:flex;align-items:center;gap:20px;border:1px solid #ffffff18;background:#142033;border-radius:14px;padding:16px;min-width:0}.tm-row>img{width:110px;height:150px;object-fit:contain}.tm-row>div{min-width:0}.tm-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.tm-actions button{padding:8px 12px;border:1px solid #ffffff26;background:#26374f;color:#e0e9f6;border-radius:8px}.tm-actions span{flex-basis:100%}.rp-store .tg-track{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 16px)/3);gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#50617c transparent;padding-bottom:9px}.rp-store .tg-slide{min-width:0;height:235px;padding:5px;border:1px solid #cfdeff1a;border-radius:12px;background:#0a142466;scroll-snap-align:start;cursor:zoom-in}.rp-store .tg-slide img{display:block;width:100%;height:100%;object-fit:contain;border-radius:7px;font-size:10px;color:#a9bad3}.rp-store .tg-navigation{display:flex;justify-content:center;align-items:center;gap:18px;margin-top:12px;color:#a7b6cd;font-size:10px}.rp-store .tg-navigation button{display:grid;place-items:center;background:#25344b;border:1px solid #ffffff20;color:#dce7f7;border-radius:8px;min-width:38px;min-height:36px}.rp-store .tg-empty{min-height:240px;display:grid;place-items:center;text-align:center;padding:20px;color:#9eafc8;font-size:12px;border:1px dashed #ffffff1a;border-radius:14px}.tg-lightbox{position:fixed;inset:0;z-index:1000;background:#020611ed;display:grid;place-items:center;padding:20px}.tg-lightbox section{width:min(100%,1000px);height:90dvh;position:relative;display:grid;place-items:center}.tg-lightbox img{max-width:100%;max-height:85dvh;object-fit:contain}.tg-close{position:absolute;right:0;top:0;z-index:1;display:grid;place-items:center;width:44px;height:44px;background:#26374f;border:1px solid #fff3;color:white;border-radius:50%}@media(max-width:620px){.tm-row{align-items:flex-start;gap:12px}.tm-row>img{width:75px;height:110px}.rp-store .tg-slide{height:210px}.tg-lightbox{padding:10px}}@media(prefers-reduced-motion:reduce){.rp-store .tg-track{scroll-behavior:auto}}
+
+
+/* Public hero gallery only: each scroll page contains up to three screenshots. */
+.rp-store .tg-paged-track{
+ display:flex;
+ gap:0;
+ padding-bottom:0;
+ scrollbar-width:none;
+ container-type:inline-size;
+}
+.rp-store .tg-paged-track::-webkit-scrollbar{display:none}
+.rp-store .tg-paged-track .tg-page{
+ flex:0 0 100%;
+ min-width:0;
+ display:grid;
+ grid-template-columns:repeat(var(--tg-columns),minmax(0,1fr));
+ gap:10px;
+ scroll-snap-align:start;
+ scroll-snap-stop:always;
+ padding:2px;
+}
+.rp-store .tg-paged-track .tg-slide{
+ display:grid;
+ place-items:center;
+ width:100%;
+ height:clamp(220px,68cqi,300px);
+ min-width:0;
+ padding:4px;
+ scroll-snap-align:none;
+ overflow:hidden;
+}
+.rp-store .tg-paged-track .tg-slide img{
+ width:100%;
+ height:100%;
+ min-width:0;
+ min-height:0;
+ object-fit:contain;
+ object-position:center;
+ margin:auto;
+}
+@media(max-width:620px){.rp-store .tg-paged-track .tg-page{gap:7px}.rp-store .tg-paged-track .tg-slide{height:clamp(210px,70cqi,280px);padding:3px}}
+/* A single landscape screenshot can shrink vertically; portrait stays capped. */
+.rp-store .tg-paged-track .tg-page .tg-slide:only-child{height:auto;min-height:140px;max-height:300px;align-self:center}
+.rp-store .tg-paged-track .tg-page .tg-slide:only-child img{height:auto;max-height:290px}
+@media(max-width:620px){.rp-store .tg-paged-track .tg-page .tg-slide:only-child{max-height:280px}.rp-store .tg-paged-track .tg-page .tg-slide:only-child img{max-height:270px}}
