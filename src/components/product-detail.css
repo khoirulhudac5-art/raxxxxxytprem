@@ -2,3 +2,5 @@
 
 /* Keep package choices close to the top on phones; desktop is unchanged. */
 @media(max-width:700px){.pd-visual{width:76px;max-width:100%;aspect-ratio:1}.pd-product{gap:12px}.pd-visual .product-icon{padding:6%}}
+
+.pd-catalog-nav{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.pd-catalog-nav .pd-back{min-height:44px;margin:0}.pd-catalog-nav a[aria-current=page]{color:#eef3fc}

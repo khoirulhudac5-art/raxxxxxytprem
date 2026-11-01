@@ -1,0 +1,2 @@
+import Link from 'next/link';
+export function EbookPreviewNotice(){return <aside className="eb-preview-notice" role="note"><details><summary><strong>PREVIEW LOKAL · DATA CONTOH</strong></summary><p>Cover, judul, dan harga di halaman ini hanya untuk review visual. Tombol download dan pembelian dinonaktifkan.</p><div><Link href="/ebook?preview=local-ebooks">Katalog preview</Link><Link href="/ebook">Keluar preview</Link></div></details></aside>;}

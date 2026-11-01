@@ -1,0 +1,6 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import {ArrowUpRight} from 'lucide-react';
+import {EbookSectionLink} from './ebook-section-link';
+export function EbookStoreHeader(){return <header className="eb-header"><div className="eb-shell eb-header-inner"><Link href="/" className="eb-brand"><Image src="/logo.png" width={36} height={36} alt=""/><span>rakyat<strong>premium</strong><small>DIGITAL STORE</small></span></Link><nav aria-label="Navigasi utama"><a href="https://t.me/Tst_rakprem" target="_blank" rel="noopener noreferrer">Testimoni<ArrowUpRight size={13}/></a></nav></div></header>;}
+export function EbookStoreFooter(){return <footer className="rp-footer rp-shell"><div className="rp-footer-top"><div><Link href="/" className="rp-footer-brand">rakyat<span>premium</span></Link><p>Digital essentials. Thoughtfully selected.</p></div><nav aria-label="Navigasi footer"><Link href="/">Aplikasi</Link><EbookSectionLink/><Link href="/#keunggulan">Informasi layanan</Link><Link href="/admin">Admin<ArrowUpRight size={13}/></Link></nav></div><div className="rp-footer-bottom"><span>© {new Date().getFullYear()} Rakyat Premium</span><span>Katalog digital independen.</span></div></footer>;}

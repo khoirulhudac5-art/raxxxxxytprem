@@ -3,7 +3,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),ts=requi
 function load(p,imports={}){const c={exports:{},URL,require:n=>n in imports?imports[n]:n.endsWith('.css')?{}:require(n)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,c);return c.exports;}
 const model=load('src/lib/products.ts'),wa=load('src/lib/whatsapp.ts',{'./products':model,'./config':{storeConfig:{whatsappNumber:''}}});
 let selected=0;
-const imports={react:{useState:initial=>[selected,value=>selected=value]},'next/image':()=>null,'next/link':()=>null,'./product-image':{ProductImage:()=>null},'@/lib/products':model,'@/lib/whatsapp':wa,'@/lib/supabase/use-catalog-preview':{},'@/lib/supabase/use-store-settings':{}};
+const imports={react:{useState:initial=>[selected,value=>selected=value]},'next/image':()=>null,'next/link':()=>null,'./product-image':{ProductImage:()=>null},'./detail-skeleton':load('src/components/detail-skeleton.tsx'),'@/lib/products':model,'@/lib/whatsapp':wa,'@/lib/supabase/use-catalog-preview':{},'@/lib/supabase/use-store-settings':{}};
 const detail=load('src/components/product-detail.tsx',imports);
 function nodes(t){if(!t||typeof t!=='object')return [];return [t,...[t.props?.children].flat(Infinity).flatMap(nodes)];}
 function text(t){if(typeof t==='string'||typeof t==='number')return ''+t;if(!t||typeof t!=='object')return '';return [t.props?.children].flat(Infinity).map(text).join(' ');}
