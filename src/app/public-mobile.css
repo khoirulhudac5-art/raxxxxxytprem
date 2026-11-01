@@ -330,3 +330,62 @@
  .rp-store .rp-mobile-product-sheet .rp-plan.is-sold-out strong{color:#c8d2e2}
  .rp-store .rp-mobile-product-sheet .rp-plan.is-sold-out>span:not(.rp-radio){display:flex;flex-wrap:wrap;align-items:center;gap:4px;min-width:0}
 }
+
+/* Homepage phase 1: get phone visitors to the catalog sooner. */
+.rp-store .rp-hero-mobile-title,.rp-store .rp-hero-mobile-description{display:none}
+.rp-store .rp-hero h1>.rp-hero-desktop-title{color:inherit}
+.rp-store .rp-hero-desktop-title>span{color:#a4b7d8}
+@media(max-width:700px){
+ .rp-store>main{display:flex;flex-direction:column;min-width:0}
+ .rp-store .rp-header-inner{padding-block:10px;gap:8px}
+ .rp-store .rp-brand{font-size:19px}
+ .rp-store .rp-brand img{width:30px;height:30px}
+ .rp-store .rp-brand small{font-size:6px;margin-top:5px}
+ .rp-store .rp-header nav{gap:7px}
+ .rp-store .rp-header .rp-testimonials{font-size:11px;padding:9px 8px}
+ .rp-store .rp-header nav>a{font-size:11px}
+ .rp-store .rp-hero{order:0;display:block;padding-block:20px 18px;min-height:0}
+ .rp-store .rp-hero-copy>.rp-eyebrow,.rp-store .rp-hero-caption,.rp-store .rp-hero-actions .rp-subtle-link{display:none}
+ .rp-store .rp-hero h1>.rp-hero-desktop-title,.rp-store .rp-hero-copy>.rp-hero-desktop-description{display:none}
+ .rp-store .rp-hero h1>.rp-hero-mobile-title{display:block;color:#ecf2fc}
+ .rp-store .rp-hero h1{font-size:clamp(29px,7.5vw,33px);line-height:1.13;letter-spacing:-1px;margin:0 0 10px}
+ .rp-store .rp-hero-copy>.rp-hero-mobile-description{display:block;font-size:13px;line-height:1.65;max-width:310px;color:#a9b7cc}
+ .rp-store .rp-hero-actions{margin-top:14px;display:flex;flex-direction:row;gap:0}
+ .rp-store .rp-hero-actions .rp-buy{flex:0 1 auto;min-height:44px;font-size:12px;padding:10px 16px}
+ .rp-store .rp-catalog{order:1;padding-block:18px 24px;min-width:0}
+ .rp-store .rp-catalog>.rp-section-heading .rp-eyebrow,.rp-store .rp-catalog>.rp-section-heading p{display:none}
+ .rp-store .rp-catalog .rp-section-heading h2{font-size:25px;margin:0;line-height:1.25}
+ .rp-store .rp-catalog .rp-controls{margin-top:16px}
+ .rp-store .rp-catalog .rp-results{margin-block:12px}
+ .rp-store .rp-after-catalog{order:2;padding-bottom:24px;min-width:0}
+ .rp-store .rp-hero>.rp-testimonial-showcase{display:none}
+ .rp-store .rp-trust-strip{order:3}
+ .rp-store .rp-trust-strip>.rp-shell{display:flex;flex-wrap:wrap;gap:8px 14px;padding-block:14px}
+ .rp-store .rp-trust-strip span{font-size:10px;gap:7px}
+ .rp-store .rp-trust-strip svg{width:14px;height:14px}
+ .rp-store .rp-assurance{order:4;padding-block:24px}
+ .rp-store .rp-assurance>.rp-section-heading .rp-eyebrow{display:none}
+ .rp-store .rp-assurance .rp-section-heading h2{font-size:24px;margin-top:0}
+ .rp-store .rp-assurance-grid{margin-top:16px;padding-top:18px;gap:16px}
+ .rp-store .rp-assurance-grid article{display:grid;grid-template-columns:24px minmax(0,1fr);gap:5px 12px}
+ .rp-store .rp-assurance-grid article>svg{grid-column:1;grid-row:1 / 3;width:21px;height:21px;margin-top:2px}
+ .rp-store .rp-assurance-grid h3{grid-column:2;font-size:15px;margin:0}
+ .rp-store .rp-assurance-grid p{grid-column:2;font-size:12px;line-height:1.6;margin:0}
+ .rp-store .rp-bottom{order:5;padding-bottom:24px}
+ .rp-store .rp-bottom-inner{padding:18px;gap:16px}
+ .rp-store .rp-bottom .rp-eyebrow{display:none}
+ .rp-store .rp-bottom h2{font-size:22px;margin:0}
+ .rp-store .rp-bottom p{font-size:12px;margin-top:8px}
+}
+
+/* Phase 2 catalog links: package selection lives on /produk/[slug]. */
+.rp-store .rp-catalog-link{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:26px 20px;min-height:230px;text-align:center;text-decoration:none}
+.rp-store .rp-catalog-logo{display:grid;place-items:center;width:84px;height:84px;flex-shrink:0}
+.rp-store .rp-catalog-logo .product-icon{display:grid;place-items:center;width:100%;height:100%;padding:5px;background:transparent;border:0;border-radius:0;box-shadow:none;color:rgb(var(--card-accent,107 151 219))}
+.rp-store .rp-catalog-logo .product-image{width:100%;height:100%;object-fit:contain;object-position:center;filter:drop-shadow(0 4px 7px #0003);border-radius:0}
+.rp-store .rp-catalog-logo .product-icon>svg{width:50%;height:50%}
+.rp-store .rp-catalog-name{font-size:20px;font-weight:500;line-height:1.4;letter-spacing:-.4px}
+.rp-store .rp-catalog-from{font-size:12px;color:#a2b5cf;line-height:1.5}
+.rp-store .rp-catalog-from strong{font-weight:500;color:#dce8fa}
+.rp-store .rp-catalog-stock{font-size:10px;color:#d8a5b2;background:#422832;border-radius:5px;padding:2px 7px}
+@media(max-width:700px){.rp-store .rp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-store .rp-catalog-link{aspect-ratio:1;min-height:155px;height:100%;padding:15px 10px;gap:9px;border-radius:18px}.rp-store .rp-catalog-logo{width:50px;height:50px}.rp-store .rp-catalog-name{font-size:14px;line-height:1.35;min-height:2.7em;display:flex;align-items:center;justify-content:center}.rp-store .rp-catalog-from{font-size:11px}.rp-store .rp-catalog-stock{font-size:9px;padding:1px 6px}}@media(max-width:359px){.rp-store .rp-catalog-link{padding:12px 8px;gap:7px}.rp-store .rp-catalog-logo{width:44px;height:44px}.rp-store .rp-catalog-name{font-size:13px}.rp-store .rp-catalog-from{font-size:10px}}

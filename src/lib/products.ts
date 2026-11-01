@@ -22,3 +22,11 @@ export const STORAGE_KEY = 'rakyat-premium-products-v1';
 export function validProducts(value: unknown): value is Product[] {
  return Array.isArray(value) && value.every(p => p && (p.imageUrl === undefined || typeof p.imageUrl === 'string') && ['id','name','description','category','icon','color','badge'].every(k => typeof p[k] === 'string') && p.plans?.length > 0 && Array.isArray(p.plans) && p.plans.every((q: {duration:unknown;price:unknown;available?:unknown}) => (q.available===undefined||typeof q.available==='boolean') && typeof q.duration === 'string' && q.duration.trim() && typeof q.price === 'number' && Number.isFinite(q.price) && q.price >= 0)) && new Set(value.map(p=>p.id)).size === value.length;
 }
+
+// Slugs derive from live names; duplicate names receive the stable product ID suffix.
+export function productSlug(product:Product,products:Product[]):string{
+ const slug=(name:string)=>name.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'produk';
+ const base=slug(product.name);
+ const candidate=products.filter(p=>slug(p.name)===base).length>1?base+'-'+product.id:base;
+ return products.some(p=>p.id!==product.id&&slug(p.name)===candidate)?candidate+'-'+product.id:candidate;
+}
