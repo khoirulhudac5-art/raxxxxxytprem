@@ -16,7 +16,7 @@ function WhatsAppIcon(){return <svg width="18" height="18" viewBox="0 0 24 24" f
 function ProductCard({product,products}:{product:Product;products:Product[]}){
  const accents:Record<string,string>={blue:'107 151 219',green:'109 184 161',white:'178 192 218',cyan:'119 178 195',red:'208 113 130',lime:'112 179 139'};
  const accent=accents[product.color]??accents.blue;
- return <Link href={'/produk/'+productSlug(product,products)} className="rp-card rp-card-3d rp-catalog-link" style={{'--card-accent':accent} as CSSProperties} aria-label={'Lihat paket '+product.name}><span className="rp-catalog-logo"><ProductImage product={product}/></span><span className="rp-catalog-name">{product.name}</span></Link>;
+ return <Link data-analytics-event="product_click" data-analytics-catalog="apps" data-analytics-product={product.id} href={'/produk/'+productSlug(product,products)} className="rp-card rp-card-3d rp-catalog-link" style={{'--card-accent':accent} as CSSProperties} aria-label={'Lihat paket '+product.name}><span className="rp-catalog-logo"><ProductImage product={product}/></span><span className="rp-catalog-name">{product.name}</span></Link>;
 }
 export default function Home(){
  const {settings,ready:settingsReady,error:settingsError}=useStoreSettings();

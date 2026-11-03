@@ -12,5 +12,5 @@ function FreeDownload({book,url}:{book:PublicEbook;url:string|null}){
 }
 export function PaidPurchase({book}:{book:PublicEbook}){
  const store=useStoreSettings(),href=store.ready&&!store.error?ebookWhatsAppLink(book,store.settings.number):'';
- return <div className="eb-purchase">{href?<a className="eb-button" href={href} target="_blank" rel="noopener noreferrer"><MessageCircle size={18}/>Beli via WhatsApp<ArrowUpRight size={16}/></a>:<button className="eb-button" disabled>{store.error?'Pemesanan belum tersedia':'Menyiapkan WhatsApp…'}</button>}{store.error&&<p role="alert">Nomor toko belum dapat dibaca. Muat ulang halaman untuk mencoba kembali.</p>}<p>Pembayaran dan pengiriman file dilakukan manual oleh Admin melalui WhatsApp.</p></div>;
+ return <div className="eb-purchase">{href?<a data-analytics-event="purchase_whatsapp_click" data-analytics-catalog="ebooks" data-analytics-product={book.id} className="eb-button" href={href} target="_blank" rel="noopener noreferrer"><MessageCircle size={18}/>Beli via WhatsApp<ArrowUpRight size={16}/></a>:<button className="eb-button" disabled>{store.error?'Pemesanan belum tersedia':'Menyiapkan WhatsApp…'}</button>}{store.error&&<p role="alert">Nomor toko belum dapat dibaca. Muat ulang halaman untuk mencoba kembali.</p>}<p>Pembayaran dan pengiriman file dilakukan manual oleh Admin melalui WhatsApp.</p></div>;
 }

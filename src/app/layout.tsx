@@ -5,5 +5,7 @@ import '@fontsource/poppins/600.css';
 import '@fontsource/poppins/700.css';
 import './globals.css';
 import './ui-feedback.css';
+import {AnalyticsTracker} from '@/components/analytics-tracker';
+import {analyticsOrigin} from '@/lib/analytics/server';
 export const metadata: Metadata = {title:'Rakyat Premium — Upgrade harimu',description:'Katalog produk digital Rakyat Premium. Temukan paket pilihan dan pesan melalui WhatsApp.'};
-export default function RootLayout({children}:{children:React.ReactNode}) { return <html lang="id"><body>{children}</body></html>; }
+export default function RootLayout({children}:{children:React.ReactNode}) { return <html lang="id"><body>{children}<AnalyticsTracker origin={analyticsOrigin()}/></body></html>; }
