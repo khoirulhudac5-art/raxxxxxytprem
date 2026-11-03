@@ -1,5 +1,5 @@
 import {NextRequest,NextResponse} from 'next/server';
-import {createHmac} from 'node:crypto';
+import {randomBytes} from 'node:crypto';
 import {analyticsOrigin,analyticsWriter} from '@/lib/analytics/server';
 import {validateEvent} from '@/lib/analytics/contract';
 import {createClient} from '@/lib/supabase/server';
@@ -32,7 +32,9 @@ export async function POST(request:NextRequest){
    const access=await checkAdminAccess(()=>createClient());
    if(access==='admin'||access==='unavailable')return reply(204);
   }
-  const visitor=createHmac('sha256',process.env.ANALYTICS_VISITOR_HMAC_SECRET!).update(`${event.visitor}:${event.issuedAt}`).digest('hex');
+  // Legacy RPC requires a visitor key. Fresh randomness per event prevents linking
+  // activity across events, browsers or sessions. Never derive it from request metadata.
+  const visitor=randomBytes(32).toString('hex');
   const {data,error}=await analyticsWriter().rpc('analytics_ingest_v1',{
    p_id:event.id,p_visitor:visitor,p_type:event.type,p_catalog:event.catalog,p_product:event.productId??null,p_page:event.page,
   });
