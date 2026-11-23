@@ -1,14 +1,14 @@
 // Offline rendering/state tests: no Auth calls, network, uploads or production writes.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),ts=require('typescript'),React=require('react');
 const {renderToStaticMarkup}=require('react-dom/server');
-function load(file,imports={}){const c={exports:{},URL,require:n=>n in imports?imports[n]:n.endsWith('.css')?{}:require(n)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,c);return c.exports;}
+function load(file,imports={}){const c={exports:{},URL,require:n=>(n==='./public-copy'||n==='@/components/public-copy')?require('./public-copy-test.cjs'):n in imports?imports[n]:n.endsWith('.css')?{}:require(n)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,c);return c.exports;}
 const skeleton=load('src/components/detail-skeleton.tsx');
 for(const kind of ['app','ebook']){
  const html=renderToStaticMarkup(React.createElement(skeleton.DetailSkeleton,{kind}));assert(html.includes('aria-busy="true"'));assert(html.includes('role="status"'));assert(html.includes('ui-skeleton-title'));assert(html.includes('ui-skeleton-price'));assert(html.includes('ui-skeleton-button'));assert(!/<button|<input|<a\s/.test(html));
 }
 const model=load('src/lib/products.ts');const wa=load('src/lib/whatsapp.ts',{'./products':model,'./config':{storeConfig:{whatsappNumber:''}}});let status='loading',retries=0;
 const Link=({children,...props})=>React.createElement('a',props,children);
-const detail=load('src/components/product-detail.tsx',{'next/link':{default:Link},'next/image':{default:()=>null},'./product-image':{ProductImage:()=>null},'./detail-skeleton':skeleton,'@/lib/products':model,'@/lib/whatsapp':wa,'@/lib/supabase/use-catalog-preview':{useCatalogPreview:()=>({state:{status,products:status==='ready'?[model.initialProducts[0]]:[]},retry:()=>retries++})},'@/lib/supabase/use-store-settings':{useStoreSettings:()=>({ready:true,error:'',settings:{number:'6281234567890',template:'{produk} {durasi} {harga}'}})}});
+const detail=load('src/components/product-detail.tsx',{'./public-store-frame':{PublicStoreFrame:({children})=>children},'./public-store-header':{PublicStoreHeader:()=>null},'next/link':{default:Link},'next/image':{default:()=>null},'./product-image':{ProductImage:()=>null},'./detail-skeleton':skeleton,'@/lib/products':model,'@/lib/whatsapp':wa,'@/lib/supabase/use-catalog-preview':{useCatalogPreview:()=>({state:{status,products:status==='ready'?[model.initialProducts[0]]:[]},retry:()=>retries++})},'@/lib/supabase/use-store-settings':{useStoreSettings:()=>({ready:true,error:'',settings:{number:'6281234567890',template:'{produk} {durasi} {harga}'}})}});
 const render=()=>renderToStaticMarkup(React.createElement(detail.ProductDetail,{slug:'chatgpt-plus'}));
 for(status of ['idle','loading'])assert(render().includes('ui-detail-skeleton'));
 status='error';let html=render();assert(!html.includes('ui-detail-skeleton'));assert(html.includes('Produk belum dapat dimuat'));assert(html.includes('Coba lagi'));

@@ -37,6 +37,10 @@ async function run(){
  assert.throws(()=>crud.validateEbookRequest({operation:'create',entity:'__proto__',id,data:payload}));
  for(const fields of [{is_free:false,price:20000},{price:1},{is_free:false,price:0,free_download_url:null},{free_download_url:'javascript:alert(1)'},{free_download_url:'https://user:password@example.com/book.pdf'},{cover_path:'../old.png'},{sort_order:-1},{is_published:'true'},{category_id:'bad'}])assert.throws(()=>crud.validateEbookRequest({operation:'create',entity:'ebook',id,data:{...payload,...fields}}));
  assert.equal(writes,0);
+ for(const [code,message]of [['PGRST205','Tabel e-book'],['42P01','Tabel e-book'],['PGRST204','Kolom e-book'],['42703','Kolom e-book'],['PGRST116','pengaturan main']]){
+  const unavailable={from:()=>({select(){return this;},order(){return this;},eq(){return this;},single(){return this;},then(resolve){return Promise.resolve({data:null,error:{code}}).then(resolve);}})};
+  await assert.rejects(()=>crud.executeEbookAdmin(unavailable,{operation:'list'}),e=>e.status===503&&e.message.includes(message));
+ }
  const create={operation:'create',entity:'ebook',id,data:{...payload,admin:true,revision:999}};
  await crud.executeEbookAdmin(client(),create);assert.equal(db.ebooks[0].revision,1);assert(!('admin' in db.ebooks[0]));
  const update={operation:'update',entity:'ebook',id,revision:1,data:{...payload,title:'Updated',is_free:false,price:25000,free_download_url:null}};

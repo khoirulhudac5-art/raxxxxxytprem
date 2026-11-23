@@ -1,12 +1,12 @@
 ﻿// Local mock-render regression: catalog routing and detail stock/WhatsApp behavior.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),ts=require('typescript');
-function load(p,imports={}){const c={exports:{},URL,require:n=>n in imports?imports[n]:n.endsWith('.css')?{}:require(n)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,c);return c.exports;}
+function load(p,imports={}){const c={exports:{},URL,require:n=>(n==='./public-copy'||n==='@/components/public-copy')?require('./public-copy-test.cjs'):n in imports?imports[n]:n.endsWith('.css')?{}:require(n)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,c);return c.exports;}
 const model=load('src/lib/products.ts'),wa=load('src/lib/whatsapp.ts',{'./products':model,'./config':{storeConfig:{whatsappNumber:''}}});
 let selected=0;
-const imports={react:{useState:initial=>[selected,value=>selected=value]},'next/image':()=>null,'next/link':()=>null,'./product-image':{ProductImage:()=>null},'./detail-skeleton':load('src/components/detail-skeleton.tsx'),'@/lib/products':model,'@/lib/whatsapp':wa,'@/lib/supabase/use-catalog-preview':{},'@/lib/supabase/use-store-settings':{}};
+const imports={'./public-store-frame':{PublicStoreFrame:()=>null},'./public-store-header':{PublicStoreHeader:()=>null},react:{useState:initial=>[selected,value=>selected=value]},'next/image':()=>null,'next/link':()=>null,'./product-image':{ProductImage:()=>null},'./detail-skeleton':load('src/components/detail-skeleton.tsx'),'@/lib/products':model,'@/lib/whatsapp':wa,'@/lib/supabase/use-catalog-preview':{},'@/lib/supabase/use-store-settings':{}};
 const detail=load('src/components/product-detail.tsx',imports);
 function nodes(t){if(!t||typeof t!=='object')return [];return [t,...[t.props?.children].flat(Infinity).flatMap(nodes)];}
-function text(t){if(typeof t==='string'||typeof t==='number')return ''+t;if(!t||typeof t!=='object')return '';return [t.props?.children].flat(Infinity).map(text).join(' ');}
+function text(t){if(t?.type?.name==='PublicText')return require('./public-copy-test.cjs').translatePublic(t.props.text,'id',t.props.values);if(typeof t==='string'||typeof t==='number')return ''+t;if(!t||typeof t!=='object')return '';return [t.props?.children].flat(Infinity).map(text).join(' ');}
 const product={...model.initialProducts[1],plans:[{duration:'1 bulan',price:25000},{duration:'3 bulan',price:65000}]};const settings={number:'6281234567890',template:'{produk}|{durasi}|{harga}'};
 assert.equal(model.productSlug(product,[product]),'capcut-pro');const duplicate={...product,id:'other'};assert.notEqual(model.productSlug(product,[product,duplicate]),model.productSlug(duplicate,[product,duplicate]));
 function render(){return nodes(detail.ProductPackages({product,settings,settingsReady:true}));}

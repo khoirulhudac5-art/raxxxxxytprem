@@ -1,9 +1,10 @@
+// Default input is synthetic; optional --live comparisons require --reference <approved JSON>.
 // Mock/render/handler checks only. No cookies, storage or live Auth modifications.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ts=require('typescript');
 const React=require('react');
 function load(file,imports){const ctx={exports:{},URL,crypto:require('node:crypto').webcrypto,require:name=>name in imports?imports[name]:require(name)};
  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX}}).outputText,ctx);return ctx.exports;}
-const products=JSON.parse(fs.readFileSync('rakyat-premium-backup-2026-10-30T09-05-23-204Z.json','utf8')).products;
+const products=require('./fixtures/catalog.cjs').catalogReference().products;
 const model=load('src/lib/products.ts',{});
 function nodes(value){if(Array.isArray(value))return value.flatMap(nodes);if(!value||typeof value!=='object')return[];return [value,...nodes(value.props?.children)];}
 function workspace(preview,status='ready',forcedDraft=null,forcedDelete=null,crud=false,mutationOK=true){

@@ -1,3 +1,4 @@
+// Default input is synthetic; optional --live comparisons require --reference <approved JSON>.
 // Local: node scripts/test-supabase-products.cjs
 // Optional anon SELECT: node --env-file=.env.local scripts/test-supabase-products.cjs --live
 const fs = require('node:fs');
@@ -10,7 +11,7 @@ const source = fs.readFileSync('src/lib/supabase/products.ts', 'utf8');
 const context = {exports:{}};
 vm.runInNewContext(ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS, target:ts.ScriptTarget.ES2020}}).outputText, context);
 const {mapSupabaseProducts, fetchSupabaseProducts, PRODUCT_COLUMNS} = context.exports;
-const backup = JSON.parse(fs.readFileSync('rakyat-premium-backup-2026-10-30T09-05-23-204Z.json', 'utf8'));
+const backup = require('./fixtures/catalog.cjs').catalogReference();
 const rows = backup.products.map(({imageUrl, ...product}) => ({...product, image_url:imageUrl}));
 // JSON round-trip removes VM realm prototype differences for strict assertions.
 const plain = value => JSON.parse(JSON.stringify(value));

@@ -20,3 +20,6 @@ scripts/*inspection.json
 scripts/*report.json
 scripts/*latest.json
 scripts/supabase-schema.json
+
+# Keep development output separate from production builds.
+/.next-dev/

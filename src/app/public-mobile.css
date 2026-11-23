@@ -35,8 +35,6 @@
  .rp-store .rp-testimonial-showcase .tg-navigation button{min-width:44px;min-height:44px}
  .rp-store .rp-testimonial-showcase .tg-empty{min-height:110px;padding:16px}
  .rp-store .rp-testimonial-link{min-height:44px;font-size:12px;margin-top:12px}
- .rp-store .rp-trust-strip>.rp-shell{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding-block:18px}
- .rp-store .rp-trust-strip span{font-size:11px}
  .rp-store .rp-catalog{padding-block:32px}
  .rp-store .rp-section-heading{gap:10px;align-items:start}
  .rp-store .rp-section-heading h2{font-size:27px;line-height:1.2;margin-top:10px}
@@ -359,10 +357,6 @@
  .rp-store .rp-catalog .rp-results{margin-block:12px}
  .rp-store .rp-after-catalog{order:2;padding-bottom:24px;min-width:0}
  .rp-store .rp-hero>.rp-testimonial-showcase{display:none}
- .rp-store .rp-trust-strip{order:3}
- .rp-store .rp-trust-strip>.rp-shell{display:flex;flex-wrap:wrap;gap:8px 14px;padding-block:14px}
- .rp-store .rp-trust-strip span{font-size:10px;gap:7px}
- .rp-store .rp-trust-strip svg{width:14px;height:14px}
  .rp-store .rp-assurance{order:4;padding-block:24px}
  .rp-store .rp-assurance>.rp-section-heading .rp-eyebrow{display:none}
  .rp-store .rp-assurance .rp-section-heading h2{font-size:24px;margin-top:0}

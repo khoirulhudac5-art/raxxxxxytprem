@@ -11,7 +11,10 @@ type BookDraft=Omit<Ebook,'revision'>&{revision?:number};
 type CategoryDraft=Omit<EbookCategory,'revision'>&{revision?:number};
 async function api(input:unknown){
  const response=await fetch('/admin/api/ebooks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input),cache:'no-store'});
- const data=await response.json();if(!response.ok)throw Error(data.error||'Permintaan gagal.');return data;
+ const data=await response.json().catch(()=>null);
+ if(!response.ok)throw Error(typeof data?.error==='string'?data.error:`Permintaan e-book gagal (HTTP ${response.status}). Muat ulang daftar untuk memeriksa hasil sebelum mengulangi simpan.`);
+ if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Respons e-book tidak valid. Muat ulang daftar untuk memeriksa hasil sebelum mengulangi simpan.');
+ return data;
 }
 export function EbookManager(){
  const [data,setData]=useState<EbookAdminData|null>(null),[tab,setTab]=useState<'books'|'categories'|'banner'>('books');

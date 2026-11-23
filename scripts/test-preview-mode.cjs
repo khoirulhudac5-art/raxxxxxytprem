@@ -1,13 +1,18 @@
+// Default input is synthetic; optional --live comparisons require --reference <approved JSON>.
 ﻿// Current public page is Supabase-backed in every environment. Mock SSR only.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),ts=require('typescript'),React=require('react');
 const {renderToStaticMarkup}=require('react-dom/server');
-function compile(p,imports={}){const c={exports:{},require:n=>n in imports?imports[n]:n.endsWith('.css')?{}:require(n)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,c);return c.exports;}
+function compile(p,imports={}){const c={exports:{},require:n=>(n==='./public-copy'||n==='@/components/public-copy')?require('./public-copy-test.cjs'):n in imports?imports[n]:n.endsWith('.css')?{}:require(n)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(p,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText,c);return c.exports;}
 const model=compile('src/lib/products.ts');const wa=compile('src/lib/whatsapp.ts',{'./products':model,'./config':{storeConfig:{whatsappNumber:''}}});
 const navigation=compile('src/components/catalog-navigation.tsx',{'next/link':{default:({children,...props})=>React.createElement('a',props,children)}});
-const products=JSON.parse(fs.readFileSync('rakyat-premium-backup-2026-10-30T09-05-23-204Z.json')).products;
+// Load the real shared presentation components; keep all business assertions.
+const frame=compile('src/components/public-store-frame.tsx');
+const publicHeader=compile('src/components/public-store-header.tsx',{'next/link':{default:({children,...props})=>React.createElement('a',props,children)},'next/image':{default:()=>null},'./public-store-frame':frame});
+const artwork=compile('src/components/catalog-artwork.tsx',{'next/image':{default:()=>null}});
+const products=require('./fixtures/catalog.cjs').catalogReference().products;
 function render(status='ready',rows=products){let enabled=false;const Page=compile('src/app/page.tsx',{
  react:{...React,useEffect:()=>{}},'next/image':{default:()=>null},'next/link':{default:({children,...props})=>React.createElement('a',props,children)},
- '@/components/catalog-navigation':navigation,'@/components/product-image':{ProductImage:()=>null},'@/components/testimonial-gallery':{TestimonialGallery:()=>null},'@/lib/products':model,'@/lib/whatsapp':wa,
+ '@/components/public-store-frame':frame,'@/components/public-store-header':publicHeader,'@/components/catalog-artwork':artwork,'@/components/catalog-navigation':navigation,'@/components/product-image':{ProductImage:()=>null},'@/components/testimonial-gallery':{TestimonialGallery:()=>null},'@/lib/products':model,'@/lib/whatsapp':wa,
  '@/lib/supabase/use-store-settings':{useStoreSettings:()=>({settings:{number:'6281234567890',template:'{produk} {durasi} {harga}'},ready:true,error:''})},
  '@/lib/supabase/use-catalog-preview':{useCatalogPreview:value=>{enabled=value;return {state:{status,products:status==='ready'?rows:[],error:status==='error'?'Gagal':null},retry:()=>{}};}}
  }).default;return {html:renderToStaticMarkup(React.createElement(Page)),enabled};}

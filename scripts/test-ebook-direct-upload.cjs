@@ -4,13 +4,13 @@ const {NextRequest}=require('next/server');
 function load(file,imports={},globals={}){const c={exports:{},URL,File,Response,TextDecoder,Uint8Array,Object,crypto:require('node:crypto'),require:n=>n==='server-only'?{}:n in imports?imports[n]:require(n),...globals};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,c);return c.exports;}
 const model=load('src/lib/ebooks.ts'),validator=load('src/lib/supabase/testimonials.ts'),errors=load('src/lib/supabase/ebook-error.ts');
 const image=load('src/lib/supabase/ebook-image.server.ts',{'../ebooks':model,'./testimonials':validator,'./ebook-error':errors});
-const store=new Map(),journal=new Map(),uploads=[],requests=[];let role='admin',signedIn=true,mode='normal',apiOffline=false,downloads=0;
+const store=new Map(),journal=new Map(),uploads=[],requests=[];let role='admin',signedIn=true,mode='normal',apiOffline=false,downloads=0,uploadFailure=null;
 const storage={download:async path=>{downloads++;return {data:store.get(path)??null,error:store.has(path)?null:{code:'not-found'}};}};
 const server={storage:{from:bucket=>{assert.equal(bucket,'ebook-images');return storage;}}};
 const client={auth:{getUser:async()=>({data:{user:signedIn?{id:'admin-test'}:null},error:null})},rpc:async()=>({data:role==='admin',error:null}),storage:{from:bucket=>{assert.equal(bucket,'ebook-images');return {upload:async(path,file,options)=>{
  uploads.push({path,file,options});assert.equal(options.upsert,false);
  if(role!=='admin')return {error:{message:'RLS denied'}};
- if(mode==='fail-before-write')return {error:{message:'network'}};
+ if(mode==='fail-before-write')return {error:uploadFailure??{message:'network'}};
  if(store.has(path))return {error:{message:'already exists'}};
  store.set(path,file);if(mode==='commit-then-throw')throw Error('response lost');return {data:{path},error:null};
  }};}}};
@@ -42,6 +42,16 @@ const png=size=>{const bytes=new Uint8Array(size);bytes.set([137,80,78,71,13,10,
  const count=store.size;apiOffline=false;await direct.uploadEbookDirect(client,pendingFile,'covers',retry,()=>{});assert.equal(store.size,count);assert.equal(uploads.at(-1).path,retry);assert.equal(uploads.at(-2).path,retry);
  const reloaded=load('src/lib/ebook-direct-upload.ts',{'./ebooks':model,'./supabase/testimonials':validator},{window:{localStorage:{getItem:key=>journal.get(key)??null,setItem:(key,v)=>journal.set(key,v)}}});assert(reloaded.pendingEbookUploads().some(r=>r.path===retry));
  mode='fail-before-write';let orphan;await assert.rejects(()=>direct.uploadEbookDirect(client,png(16),'covers',null,p=>orphan=p),/Path pemulihan/);assert(!store.has(orphan));assert(direct.pendingEbookUploads().some(r=>r.path===orphan));mode='normal';
+ mode='fail-before-write';
+ for(const [failure,expected]of [
+  [{statusCode:'403',message:'new row violates row-level security'},/HTTP 403.*Akses upload ditolak/],
+  [{statusCode:'404',code:'NoSuchBucket',message:'Bucket not found'},/NoSuchBucket.*Bucket ebook-images/],
+  [{statusCode:'413',code:'EntityTooLarge'},/HTTP 413.*ukuran/],
+  [{statusCode:'415',code:'InvalidMimeType'},/HTTP 415.*format/]
+ ]){uploadFailure=failure;await assert.rejects(()=>direct.uploadEbookDirect(client,png(16),'covers',null,()=>{}),expected);}
+ uploadFailure={statusCode:'403',message:'SECRET_MUST_NOT_LEAK',code:'invalid code SECRET'};
+ await assert.rejects(()=>direct.uploadEbookDirect(client,png(16),'covers',null,()=>{}),e=>!e.message.includes('SECRET_MUST_NOT_LEAK')&&!e.message.includes('invalid code SECRET')&&e.message.includes('Path pemulihan'));
+ mode='normal';uploadFailure=null;
  const bigPath='covers/22222222-2222-4222-8222-222222222222.png';store.set(bigPath,png(5*1024*1024+1));await assert.rejects(()=>image.verifyStoredEbookImage(server,bigPath,'covers'),e=>e.status===400);
  store.set(bigPath,new File(['wrong signature'],'fake.png',{type:'image/png'}));await assert.rejects(()=>image.verifyStoredEbookImage(server,bigPath,'covers'),e=>e.status===400);
  store.set(bigPath,new File([new Uint8Array([255,216,255])],'wrong.png',{type:'image/jpeg'}));await assert.rejects(()=>image.verifyStoredEbookImage(server,bigPath,'covers'),e=>e.status===400);

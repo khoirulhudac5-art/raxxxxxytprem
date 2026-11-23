@@ -1,3 +1,4 @@
+// Default input is synthetic; optional --live comparisons require --reference <approved JSON>.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ts=require('typescript');
 function load(file,imports={}){const ctx={exports:{},Date,URL,require:name=>name in imports?imports[name]:require(name)};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,ctx);return ctx.exports;}
 const model=load('src/lib/products.ts');
@@ -5,7 +6,7 @@ const mapper=load('src/lib/supabase/products.ts');
 const catalog=load('src/lib/supabase/catalog.ts',{'../products':model});
 const whatsapp=load('src/lib/whatsapp.ts',{'./config':{storeConfig:{whatsappNumber:''}},'./products':model});
 const {exportSupabaseBackup}=load('src/lib/supabase/backup.ts',{'./products':mapper,'./catalog':catalog,'../whatsapp':whatsapp});
-const original=JSON.parse(fs.readFileSync('rakyat-premium-backup-2026-10-30T09-05-23-204Z.json','utf8'));
+const original=require('./fixtures/catalog.cjs').catalogReference();
 const date='2026-10-30T09:05:23.204Z';
 const rows=original.products.map(({imageUrl,...p})=>({...p,image_url:imageUrl,created_at:date,updated_at:date,secret_extra:'must-not-export'})).reverse();
 const setting={id:'main',whatsapp_number:original.whatsapp.number,whatsapp_template:original.whatsapp.template,updated_at:date,secret_extra:'must-not-export'};

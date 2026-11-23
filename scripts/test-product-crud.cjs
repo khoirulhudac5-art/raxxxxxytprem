@@ -1,3 +1,4 @@
+// Default input is synthetic; optional --live comparisons require --reference <approved JSON>.
 // All requests and writes are in-memory mocks. No live Supabase calls.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ts=require('typescript');
 function load(file,imports={}){const ctx={exports:{},URL,TextDecoder,process:{env:{}},require:n=>n==='server-only'?{}:n in imports?imports[n]:require(n)};
@@ -5,7 +6,7 @@ function load(file,imports={}){const ctx={exports:{},URL,TextDecoder,process:{en
 const model=load('src/lib/products.ts').module;
 const reader=load('src/lib/supabase/products.ts').module;
 const crud=load('src/lib/supabase/product-crud.ts',{'./products':reader,'../products':model}).module;
-const backup=JSON.parse(fs.readFileSync('rakyat-premium-backup-2026-10-30T09-05-23-204Z.json','utf8'));
+const backup=require('./fixtures/catalog.cjs').catalogReference();
 let rows=backup.products.map((p,i)=>({...p,image_url:p.imageUrl||'',revision:1,sort_order:(i+1)*10})),writes=0;
 function client(schemaError=false){return {schema:()=>({from:()=>{
  let op='read',payload,filters={};const q={select(){if(op==='read')return q;return Promise.resolve(apply());},order(){return q;},eq(k,v){filters[k]=v;return q;},update(p){op='update';payload=p;return q;},delete(){op='delete';return q;},insert(p){op='create';payload=p;return {select:()=>({single:async()=>{writes++;if(rows.some(r=>r.id===p.id))return {error:{code:'23505'}};const row={...p,revision:1};rows.push(row);return {data:row};}})};},then(resolve,reject){return Promise.resolve(schemaError?{error:{code:'42703'}}:{data:structuredClone(rows)}).then(resolve,reject);}};

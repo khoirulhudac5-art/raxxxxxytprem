@@ -2,6 +2,19 @@ import type {SupabaseClient} from '@supabase/supabase-js';
 import {EBOOK_BUCKET,validEbookPath} from './ebooks';
 import {validateTestimonialFile} from './supabase/testimonials';
 type Kind='covers'|'banners';
+// Keep provider diagnostics useful without displaying raw responses or credentials.
+function storageFailure(error:unknown){
+ const e=error&&typeof error==='object'?error as {statusCode?:unknown;status?:unknown;code?:unknown;message?:unknown}:{};
+ const status=String(e.statusCode??e.status??''),code=typeof e.code==='string'&&/^[a-zA-Z0-9_]{1,64}$/.test(e.code)?e.code:'';
+ const detail=[/^\d{3}$/.test(status)?'HTTP '+status:'',code].filter(Boolean).join(', ');
+ const message=typeof e.message==='string'?e.message:'';
+ const reason=status==='403'||code==='42501'||/row.level security|unauthorized/i.test(message)?'Akses upload ditolak; periksa sesi Admin dan kebijakan Storage.'
+  :code==='NoSuchBucket'||/bucket not found/i.test(message)?'Bucket ebook-images belum tersedia; konfigurasi perlu diperiksa.'
+  :status==='413'||code==='EntityTooLarge'?'Storage menolak ukuran gambar.'
+  :status==='415'||code==='InvalidMimeType'?'Storage menolak format gambar.'
+  :'Periksa koneksi dan konfigurasi Storage sebelum mencoba lagi.';
+ return 'Upload Storage gagal'+(detail?' ('+detail+')':'')+'. '+reason;
+}
 export type PendingEbookUpload={path:string;kind:Kind;createdAt:string};
 const journalKey='rakyat-ebook-pending-uploads-v1';
 // Recovery notes only; catalog data remains exclusively in Supabase.
@@ -27,7 +40,8 @@ export async function uploadEbookDirect(client:SupabaseClient,file:File,kind:Kin
  remember(path,kind);onPath(path);
  // Browser -> Supabase directly, under existing RLS and bucket MIME/size limits.
  // A retry uses the SAME UUID; upsert:false preserves a previously stored object.
- try{await client.storage.from(EBOOK_BUCKET).upload(path,file,{contentType:file.type,upsert:false});}catch{/* Transport errors may still have committed. Verify the stable path below. */}
+ let uploadError:unknown;
+ try{const result=await client.storage.from(EBOOK_BUCKET).upload(path,file,{contentType:file.type,upsert:false});uploadError=result.error;}catch(e){uploadError=e;/* Transport errors may still have committed. Verify the stable path below. */}
  // Verify even after a returned error (including duplicate from an uncertain retry).
- try{return await confirmEbookUpload(path,kind);}catch(e){throw Error(`${e instanceof Error?e.message:'Verifikasi gagal.'} File tetap disimpan jika upload sudah diterima. Path pemulihan: ${path}`);}
+ try{return await confirmEbookUpload(path,kind);}catch(e){throw Error(`${uploadError?storageFailure(uploadError)+' ':''}${e instanceof Error?e.message:'Verifikasi gagal.'} File tetap disimpan jika upload sudah diterima. Path pemulihan: ${path}`);}
 }

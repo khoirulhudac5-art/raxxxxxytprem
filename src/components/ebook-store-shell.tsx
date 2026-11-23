@@ -1,6 +1,9 @@
+'use client';
+
+import {PublicText,PublicInput} from './public-copy';
 import Link from 'next/link';
-import Image from 'next/image';
-import {ArrowUpRight} from 'lucide-react';
 import {EbookSectionLink} from './ebook-section-link';
-export function EbookStoreHeader(){return <header className="eb-header"><div className="eb-shell eb-header-inner"><Link href="/" className="eb-brand"><Image src="/logo.png" width={36} height={36} alt=""/><span>rakyat<strong>premium</strong><small>DIGITAL STORE</small></span></Link><nav aria-label="Navigasi utama"><a href="https://t.me/Tst_rakprem" target="_blank" rel="noopener noreferrer">Testimoni<ArrowUpRight size={13}/></a></nav></div></header>;}
-export function EbookStoreFooter(){return <footer className="rp-footer rp-shell"><div className="rp-footer-top"><div><Link href="/" className="rp-footer-brand">rakyat<span>premium</span></Link><p>Digital essentials. Thoughtfully selected.</p></div><nav aria-label="Navigasi footer"><Link href="/">Aplikasi</Link><EbookSectionLink/><Link href="/#keunggulan">Informasi layanan</Link></nav></div><div className="rp-footer-bottom"><span>© {new Date().getFullYear()} Rakyat Premium</span><span>Katalog digital independen.</span></div></footer>;}
+import {PublicStoreHeader} from './public-store-header';
+import {useStoreSettings} from '@/lib/supabase/use-store-settings';
+export function EbookStoreHeader(){const {settings,ready,error}=useStoreSettings();return <PublicStoreHeader contact={ready&&!error&&settings.number?`https://wa.me/${settings.number}`:''}/>;}
+export function EbookStoreFooter(){return <footer className="rp-footer rp-shell"><div className="rp-footer-top"><div><Link href="/" className="rp-footer-brand" aria-label="Rakyat Premium, beranda"><svg className="store-footer-wordmark" viewBox="253 578 2165 347" role="img" aria-label="Rakyat Premium — digital store"><image href="/artwork/text-rakyatpremium.lossless.webp" width="2640" height="1485"/></svg></Link><p>Digital essentials. Thoughtfully selected.</p></div><nav aria-label="Navigasi footer"><Link href="/"><PublicText text="Aplikasi"/></Link><EbookSectionLink/><Link href="/#keunggulan"><PublicText text="Informasi layanan"/></Link></nav></div><div className="rp-footer-bottom"><span>© {new Date().getFullYear()} Rakyat Premium</span><span><PublicText text="Katalog digital independen."/></span></div></footer>;}

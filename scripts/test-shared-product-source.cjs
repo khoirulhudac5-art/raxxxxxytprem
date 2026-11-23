@@ -1,3 +1,4 @@
+// Default input is synthetic; optional --live comparisons require --reference <approved JSON>.
 // Local mocks or --live anon SELECT only. Does not execute any write/Auth operation.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),ts=require('typescript');
 function load(path,imports={}) {const ctx={exports:{},require:key=>{if(!(key in imports))throw Error('Unexpected import');return imports[key];}};
@@ -7,7 +8,7 @@ const catalog=load('src/lib/supabase/catalog.ts',{'../products':model});
 const reader=load('src/lib/supabase/products.ts');
 const shared=load('src/lib/supabase/product-source.ts',{'./products':reader,'./catalog':catalog});
 const refresh=load('src/lib/supabase/product-refresh.ts');
-const backup=JSON.parse(fs.readFileSync('rakyat-premium-backup-2026-10-30T09-05-23-204Z.json','utf8'));
+const backup=require('./fixtures/catalog.cjs').catalogReference();
 const plain=x=>JSON.parse(JSON.stringify(x));
 const rows=backup.products.map(({imageUrl,...p})=>({...p,image_url:imageUrl})).reverse();
 function client(result){return {schema:name=>{assert.equal(name,'public');return {from:table=>{assert.equal(table,'products');return {select:columns=>{assert.equal(columns,reader.PRODUCT_COLUMNS);return {order:async()=>result()};}};}};}};}

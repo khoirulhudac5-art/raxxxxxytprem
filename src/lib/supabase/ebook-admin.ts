@@ -45,6 +45,9 @@ export function validateEbookRequest(input:unknown){
  return {operation,entity,id,revision,data};
 }
 function databaseError(error:{code?:string}):never{
+ if(error.code==='42P01'||error.code==='PGRST205')throw new EbookError(503,'Tabel e-book belum tersedia melalui API. Periksa schema dan konfigurasi Data API; jangan jalankan migrasi tanpa persetujuan.');
+ if(error.code==='42703'||error.code==='PGRST204')throw new EbookError(503,'Kolom e-book tidak sesuai schema aplikasi. Periksa versi schema sebelum menyimpan ulang.');
+ if(error.code==='PGRST116')throw new EbookError(503,'Data e-book yang diwajibkan tidak tersedia atau tidak dapat dibaca. Periksa row pengaturan main dan akses Admin.');
  if(error.code==='23505')throw new EbookError(409,'Slug atau ID sudah digunakan. Muat ulang sebelum mencoba lagi.');
  if(error.code==='23503'||error.code==='23001')throw new EbookError(409,'Kategori masih digunakan atau kategori tujuan tidak tersedia.');
  if(error.code==='23514'||error.code==='P0001')throw new EbookError(400,'Data ditolak. Slug tidak dapat diubah setelah dibuat; periksa harga, gambar, dan publikasi.');

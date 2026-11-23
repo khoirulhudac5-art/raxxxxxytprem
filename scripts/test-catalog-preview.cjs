@@ -1,3 +1,4 @@
+// Default input is synthetic; optional --live comparisons require --reference <approved JSON>.
 // Local: node scripts/test-catalog-preview.cjs
 // Live anon SELECT: node --env-file=.env.local scripts/test-catalog-preview.cjs --live
 const fs=require('node:fs');
@@ -14,7 +15,7 @@ const catalog=load('src/lib/supabase/catalog.ts',{'../products':productModel});
 const reader=load('src/lib/supabase/products.ts');
 const shared=load('src/lib/supabase/product-source.ts',{'./products':reader,'./catalog':catalog});
 const refresh=load('src/lib/supabase/product-refresh.ts');
-const backup=JSON.parse(fs.readFileSync('rakyat-premium-backup-2026-10-30T09-05-23-204Z.json','utf8'));
+const backup=require('./fixtures/catalog.cjs').catalogReference();
 const local=backup.products;
 const plain=value=>JSON.parse(JSON.stringify(value));
 const ids=list=>list.map(p=>p.id);
